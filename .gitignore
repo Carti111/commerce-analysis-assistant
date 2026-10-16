@@ -1,0 +1,13 @@
+.local-*
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.venv/
+tmp/
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

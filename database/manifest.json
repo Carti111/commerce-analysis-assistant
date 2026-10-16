@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "seed": 20261016,
+  "start_date": "2026-04-01",
+  "end_date": "2026-10-15",
+  "demo_today": "2026-10-16",
+  "counts": {
+    "customers": 240,
+    "products": 32,
+    "orders": 1200,
+    "order_items": 3043
+  },
+  "valid_sales_statuses": [
+    "paid",
+    "completed"
+  ],
+  "seed_sql_sha256": "087564091eff982755569716b61b3c04791ffa64c54ee39e35ddbc251d488408"
+}

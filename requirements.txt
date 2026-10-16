@@ -1,0 +1,2 @@
+# Python 3.10+; all project scripts use the standard library.
+# No pip packages required. MySQL Server and Dify are external runtimes.
