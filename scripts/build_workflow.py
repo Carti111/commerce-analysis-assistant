@@ -148,8 +148,8 @@ def main():
         "workflow": {
             "conversation_variables": [],
             "environment_variables": [{"id": "c1c0e508-5f66-4c34-bbbc-389bd6bcf7db", "name": "DB_URI", "description": "填入 commerce_reader 的 MySQL 连接串；不要使用 root", "value_type": "secret", "value": "", "selector": ["env", "DB_URI"]}],
-            "features": {"opening_statement": "你好，我是商析助手。可以查询销售额、商品排行、客户贡献及订单退款情况，并展示图表。\n当前为模拟数据，覆盖2026-04-01至2026-10-15；相对时间以2026-10-16为基准。",
-                         "suggested_questions": ["查询2026年9月各品类销售额，用柱状图展示。", "最近7天每天的有效销售额是多少？用线性图展示。", "统计2026年9月各渠道销售额占比，用饼图展示。", "查询最近30天购买金额最高的前10位客户。", "查询2026年9月的销售额、有效订单数和客单价，不需要图表。"],
+            "features": {"opening_statement": "你好，我是商析助手。想了解销售、商品或客户表现，可以直接问我。\n演示数据截至2026-10-15，相对时间以2026-10-16为准。",
+                         "suggested_questions": ["查看9月各品类销售额", "查看近7天销售额趋势", "查看9月渠道销售占比", "查看近30天客户排行", "查看9月销售额与订单数"],
                          "suggested_questions_after_answer": {"enabled": False}, "retriever_resource": {"enabled": False},
                          "sensitive_word_avoidance": {"enabled": False}, "speech_to_text": {"enabled": False},
                          "text_to_speech": {"enabled": False, "language": "", "voice": ""}, "file_upload": {"enabled": False}},
