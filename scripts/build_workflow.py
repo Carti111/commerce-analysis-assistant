@@ -143,12 +143,12 @@ def main():
 
     workflow = {
         "kind": "app", "version": "0.5.0",
-        "app": {"name": "商析助手｜电商经营分析", "description": "基于模拟订单数据的自然语言经营分析：查询规划、SQL检查、多表统计、结果汇总与图表。演示日期2026-10-16。", "icon": "📊", "icon_background": "#E4FBCC", "mode": "advanced-chat", "use_icon_as_answer_icon": False},
+        "app": {"name": "电商经营分析助手", "description": "面向电商经营场景的自然语言数据分析助手，支持多表查询、经营指标统计和图表展示。", "icon": "📊", "icon_background": "#E4FBCC", "mode": "advanced-chat", "use_icon_as_answer_icon": False},
         "dependencies": [{"type": "marketplace", "current_identifier": None, "value": {"marketplace_plugin_unique_identifier": p, "version": None}} for p in plugins],
         "workflow": {
             "conversation_variables": [],
             "environment_variables": [{"id": "c1c0e508-5f66-4c34-bbbc-389bd6bcf7db", "name": "DB_URI", "description": "填入 commerce_reader 的 MySQL 连接串；不要使用 root", "value_type": "secret", "value": "", "selector": ["env", "DB_URI"]}],
-            "features": {"opening_statement": "你好，我是商析助手。想了解销售、商品或客户表现，可以直接问我。\n演示数据截至2026-10-15，相对时间以2026-10-16为准。",
+            "features": {"opening_statement": "你好，我是电商经营分析助手。想了解销售、商品或客户表现，可以直接问我。\n演示数据截至2026-10-15，相对时间以2026-10-16为准。",
                          "suggested_questions": ["查看9月各品类销售额", "查看近7天销售额趋势", "查看9月渠道销售占比", "查看近30天客户排行", "查看9月销售额与订单数"],
                          "suggested_questions_after_answer": {"enabled": False}, "retriever_resource": {"enabled": False},
                          "sensitive_word_avoidance": {"enabled": False}, "speech_to_text": {"enabled": False},
@@ -158,7 +158,7 @@ def main():
     }
     out = ROOT / "workflow"
     out.mkdir(exist_ok=True)
-    path = out / "商析助手-电商经营分析.yml"
+    path = out / "电商经营分析助手.yml"
     path.write_text(json.dumps(workflow, ensure_ascii=False, indent=2), encoding="utf-8")
     # Round-trip through the JSON subset rather than a hand-written YAML emitter.
     assert json.loads(path.read_text(encoding="utf-8")) == workflow

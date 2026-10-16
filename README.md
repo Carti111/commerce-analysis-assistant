@@ -1,168 +1,117 @@
-# 商析助手：电商经营分析
+# 电商经营分析助手
 
-把原有的学生成绩查询工作流改造成电商经营分析个人项目。保留Dify + MySQL + Python + ECharts链路，重新设计业务数据、指标口径、查询约束和验收方式。
+面向电商经营场景的自然语言数据分析应用。用户直接提问，助手自动完成 SQL 规划、数据库查询和结果分析，以文字、表格及图表展示经营数据。
 
-这是基于Dify教学工作流进行业务改造的个人学习项目。销售额、订单数和客单价已在本机Dify预览中人工核对；完整23条端到端验收尚未完成。所有数据均为模拟数据，没有真实客户信息。
+**技术栈：Dify · Python · MySQL · DeepSeek · ECharts**
 
-运行环境：Python 3.10+、MySQL、Dify，以及已配置的DeepSeek、database和ECharts插件。Python脚本只用标准库，无需安装pip依赖。项目来源与组件说明见[NOTICE.md](NOTICE.md)。
+## 功能特性
 
-## 实际演示
+- **自然语言查询**：分析销售额、订单数、客单价、商品销量、客户贡献及退款情况。
+- **多维经营分析**：关联客户、商品、订单和明细，按时间、品类、地区或渠道进行统计。
+- **自动可视化**：根据问题和数据选择柱状图、折线图或饼图，支持仅返回文字和表格。
+- **查询约束与异常处理**：校验 SQL、限制可访问表和函数，配合只读账号；对模糊问题、无记录和不支持的需求给出明确说明。
 
-2026年9月有效销售额为53,247.35元，有效订单数209，客单价254.77元。以下为本机Dify预览截图，均使用模拟数据：
+## 使用效果
 
-| 销售额查询 | 订单数与客单价查询 |
-|---|---|
-| ![销售额查询](docs/screenshots/sales-summary.png) | ![订单数与客单价](docs/screenshots/order-metrics.png) |
+提问「查看9月各品类销售额」，助手返回统计结论、明细表格和品类对比图。
 
-## 能做什么
+![品类销售额分析](docs/screenshots/category-analysis.png)
 
-- 用自然语言查询销售额、有效订单数、客单价、商品销量、地区/渠道表现、客户贡献及全额退款订单率。
-- 从四张表进行必要的关联查询，并将实际执行结果汇总成Markdown表格。
-- 按用户需求选择柱状图、线性图、饼图，或仅输出文字和表格。
-- 对模糊问题先澄清；对库存、广告、转化率、未来预测和数据写入请求明确说明不支持。
+![品类销售额柱状图](docs/screenshots/category-chart.png)
 
-数据规模：240位模拟客户、32件商品、1,200笔订单、3,043条订单明细。
+演示使用模拟数据：**240 位客户、32 件商品、1,200 笔订单、3,043 条订单明细**，覆盖 2026-04-01 至 2026-10-15。相对时间统一以 2026-10-16 为基准，便于重复验证。
 
-时间范围：2026-04-01至2026-10-15。演示“今天”固定为2026-10-16；最近30天固定为2026-09-16至2026-10-15。之后更换真实数据时，需同步更新日期规则。
-
-## 与原工作流的区别
-
-| 项目点 | 原成绩查询流程 | 当前电商版本 |
-|---|---|---|
-| 数据模型 | 学生成绩单表 | 客户、商品、订单、明细四表 |
-| 查询范围 | 一个问题扩展最多10条SQL | 通常1条，必要时最多3条，问题不明确时澄清 |
-| 指标定义 | 主要靠提示词描述 | 明确销售额、销量、客单价、退款率及估算毛利口径 |
-| SQL约束 | JSON解析后直接执行 | 词法/规则检查、表和函数允许列表、最多100行、5秒SELECT提示，配合只读账号 |
-| 结果传递 | 拼接Python字符串，可能失去查询关系 | 每个结果保留标题、SQL、口径、行数和实际记录 |
-| 错误处理 | 可能静默忽略查询失败、返回空白默认值 | 查询失败终止；空结果与异常区分；非法图表参数明确报错 |
-| 用户输出 | 多个技术进度消息 | 正文和图表，或可理解的澄清/不支持提示 |
-| 验收 | 临时提问 | 23条问题、16条参考SQL、独立期望结果和验证报告 |
-
-## 数据和流程
-
-```mermaid
-erDiagram
-  customers ||--o{ orders : places
-  orders ||--|{ order_items : contains
-  products ||--o{ order_items : referenced_by
-```
+## 技术架构
 
 ```mermaid
 flowchart LR
-  A[用户问题] --> B[模型规划SQL与口径]
-  B --> C[Python解析与SQL规则检查]
-  C --> D{是否可执行}
-  D -->|否| E[澄清或不支持说明]
-  D -->|是| F[顺序查询只读数据库]
-  F --> G[保留每条查询与实际结果]
-  G --> H[模型基于结果汇总]
-  H --> I[正文和图表参数检查]
-  I --> J[输出分析正文]
-  J --> K{图表类型}
-  K --> L[ECharts图表]
+    A[用户提问] --> B[LLM 查询规划]
+    B --> C[Python 解析与 SQL 检查]
+    C -->|需要澄清或不支持| D[返回说明]
+    C -->|通过检查| E[MySQL 只读查询]
+    E --> F[LLM 基于实际结果分析]
+    F --> G[正文与图表参数校验]
+    G --> H[分析结论与表格]
+    G --> I[ECharts 图表]
 ```
 
-## 第一步：导入新数据库
+查询默认生成 1 条 SQL，必要时最多 3 条；单次最多返回 100 行。每条查询的标题、SQL、指标口径和实际结果一起传入汇总节点，避免丢失数据来源。
 
-已存在的成绩库不会被修改。数据库名为`commerce_ai_demo`，应使用一个尚未创建同名表的新库。
+| 数据表 | 内容 | 关联关系 |
+|---|---|---|
+| `customers` | 客户、地区、注册日期 | 一位客户对应多笔订单 |
+| `products` | 商品、品类、目录价格 | 一件商品对应多条订单明细 |
+| `orders` | 下单时间、状态、渠道、实付及退款金额 | 一笔订单对应多条明细 |
+| `order_items` | 购买数量、历史价格与成本、明细实付 | 关联订单和商品 |
 
-在本项目目录打开终端，执行：
+销售额仅统计 `paid`、`completed` 状态，按下单日期归属；商品和品类销售额使用明细实付汇总，避免关联后重复累加订单金额。完整定义见[指标口径](docs/指标口径.md)。
 
-```powershell
+## 快速开始
+
+### 1. 准备环境
+
+需要 Python 3.10+、MySQL 和 Dify，并在 Dify 中配置 DeepSeek、database、ECharts 插件。项目脚本只使用 Python 标准库，无需安装额外 pip 依赖。
+
+```bash
+git clone https://github.com/Carti111/commerce-analysis-assistant.git
+cd commerce-analysis-assistant
+```
+
+### 2. 初始化数据库
+
+```bash
 python scripts/import_database.py
 ```
 
-脚本会在本机终端询问MySQL管理账号密码；不用把密码发送到聊天中。它只会创建新项目库及专用只读账号，不会删除或重置已有数据。若发现已有项目表或重名账号，会停止而不是覆盖。
+按终端提示输入本机 MySQL 管理账号密码。脚本创建独立数据库 `commerce_ai_demo`、导入模拟数据，并生成仅有查询权限的账号。若发现已有项目表，会停止导入，避免覆盖数据。
 
-默认连接本机127.0.0.1:3306，自动查找mysql.exe，也支持显式指定：
+初始化后，专用只读账号的连接串保存在项目根目录 `.local-db-uri.txt`，该文件已被 Git 忽略。
 
-```powershell
-python scripts/import_database.py --mysql "D:/MySQL/Server/bin/mysql.exe" --port 3306 --user root
-```
+也可手动依次执行 `database/01_schema.sql`、`database/02_seed.sql`，然后替换 `database/03_readonly_user.template.sql` 的密码占位符并创建只读账号。
 
-成功后在项目根目录生成`.local-db-uri.txt`，内容是专用只读账号的连接串。该文件已列入`.gitignore`，不要分享或提交。不要把root连接串填给工作流。
+### 3. 配置并运行 Dify
 
-如果希望手工导入，依次执行`database/01_schema.sql`、`database/02_seed.sql`，再修改并执行`database/03_readonly_user.template.sql`中的密码占位符。不要在运行初始化脚本之后再重复执行这些文件。
+1. 在 Dify 工作室导入 [`workflow/电商经营分析助手.yml`](workflow/电商经营分析助手.yml)。
+2. 确认两个 LLM 节点使用已配置的可用模型。
+3. 点击顶部 **ENV**，将 `.local-db-uri.txt` 中的完整连接串填入 **Secret** 类型的 `DB_URI`。
+4. 确认「执行只读SQL」节点的 DB URI 引用 `env.DB_URI`，输出格式为 JSON，然后预览运行。
 
-只读账号仅获四张演示表的SELECT权限。数据库插件本身能执行任意SQL，因此账号权限是必要边界；不能把提示词或本项目的规则检查当成完整隔离机制。[数据库插件说明](https://github.com/hjlarry/dify-plugin-database)、[MySQL GRANT文档](https://dev.mysql.com/doc/refman/8.0/en/grant.html)。
-
-## 第二步：导入Dify工作流
-
-1. 在Dify工作室选择“导入DSL文件”，导入`workflow/商析助手-电商经营分析.yml`，作为一个新应用。
-2. 保留已有成绩查询应用，方便对照和回退。
-3. 根据导入提示安装DeepSeek、database、ECharts插件。文件沿用原工作流中已使用的插件标识，不强制升级。
-4. 在两个LLM节点中确认你当前可用的DeepSeek模型。默认沿用原流程的`deepseek-v4-flash`名称；若账号或插件里没有此型号，选择你已配置并能正常调用的模型。
-5. 在环境变量中找到秘密变量`DB_URI`，把`.local-db-uri.txt`内容填入。导出文件的值为空是正常的，交付包不包含凭证。
-6. 打开“执行只读SQL”节点，确认输出格式为JSON，DB URI引用`env.DB_URI`。若插件要求授权，使用同一个专用只读连接配置，不要沿用成绩库的管理账号。
-7. 先在预览中测试，不需要先发布。
-
-连接串应类似：
+手工配置连接时，格式如下：
 
 ```text
-mysql+pymysql://commerce_reader:你的随机密码@host.docker.internal:3306/commerce_ai_demo?charset=utf8mb4
+mysql+pymysql://commerce_reader:YOUR_PASSWORD@host.docker.internal:3306/commerce_ai_demo?charset=utf8mb4
 ```
 
-Windows上Dify插件在Docker中运行时，`host.docker.internal`通常用于访问宿主机MySQL；插件中的`localhost`指容器自身，不能直接等同于宿主机。[插件连接说明](https://github.com/hjlarry/dify-plugin-database)。若Dify部署在其他机器，改为MySQL服务器实际可达地址。
+`YOUR_PASSWORD` 为只读账号密码。Windows 上通过 Docker 运行的 Dify 插件可用 `host.docker.internal` 访问宿主机；其他部署方式应填写实际可达的 MySQL 地址。账号连接信息只在本地配置，不提交到仓库。
 
-两个模型节点设置了`reasoning_format: separated`，同时代码仍兼容纯JSON、Markdown代码块及完整的`<think>`前缀。Dify提供思考标签分离能力；旧版本界面不支持该开关时，保留代码兼容处理即可。[Dify LLM文档](https://docs.dify.ai/en/cloud/use-dify/nodes/llm)。本版使用明确JSON契约和代码校验，未依赖原生结构化输出开关。
+可以从这些问题开始：
 
-DSL文件采用JSON语法的YAML子集，扩展名为`.yml`，可以按DSL文件导入；项目生成脚本不需要额外安装YAML库。
+- 查看9月各品类销售额
+- 查看近7天销售额趋势
+- 查看9月渠道销售占比
+- 查看近30天客户排行
+- 查看9月销售额与订单数
 
-## 第三步：先跑这四个问题
+## 开发与验证
 
-1. 查询2026年9月各品类销售额，用柱状图展示。
-2. 最近7天每天的有效销售额是多少？用线性图展示。
-3. 统计2026年9月各渠道销售额占比，用饼图展示。
-4. 查询2026年9月销售额、有效订单数、客单价和购买客户数，不要图表。
+```text
+config/       插件版本配置
+database/     建表、模拟数据与只读账号模板
+workflow/     可导入的 Dify 工作流
+prompts/      查询规划与结果分析提示词
+nodes/        Python 节点代码
+scripts/      初始化、构建与验证脚本
+evaluation/   验收用例、参考 SQL 与验证记录
+docs/         指标定义与演示截图
+```
 
-第4题的参考结果是：
+修改提示词或节点代码后，重新生成工作流，再导入 Dify：
 
-| 指标 | 参考值 |
-|---|---:|
-| 有效销售额 | 53,247.35元 |
-| 有效订单数 | 209 |
-| 客单价 | 254.77元 |
-| 购买客户数 | 123 |
-
-结果对上后，再完成`evaluation/手工验收记录.md`中的全部23条问题。`evaluation/cases.json`包含参考SQL和期望记录，可在MySQL中独立核对。模型SQL的文本不必和参考SQL完全相同，应检查指标口径和实际结果。
-
-## 本地验证和已完成的检查
-
-```powershell
+```bash
+python scripts/build_workflow.py
 python scripts/check_project.py
 ```
 
-当前11组本地检查通过，覆盖参考SQL可接受性、越权/写入拦截、批次原子拒绝、JSON格式、空结果区分、图表点位、外键/金额一致性和DSL引用。
+项目包含 **23 条验收用例**。已通过 11 组本地检查、16 条 MySQL 参考查询和 3 项权限拒绝检查；参考查询结果不等同于模型问答准确率。用例与期望结果见[验收数据](evaluation/cases.json)，实际运行记录见[手工验收记录](evaluation/手工验收记录.md)。
 
-如果需要重新验证真实MySQL语法和只读权限：
-
-```powershell
-python scripts/verify_mysql.py --mysql-bin "D:/MySQL/Server/bin"
-```
-
-该命令创建全新的临时数据目录和仅绑定127.0.0.1的临时实例，在操作完成后关闭并清理；不会连接你现有的3306实例。当前已用本机MySQL 26.7.0验证16条参考查询及3项权限拒绝检查，详情见`evaluation/mysql_validation_report.json`。
-
-这些是数据库、代码和数据口径验证，不是大模型问答正确率。用户已在Dify中人工核对9月销售额53,247.35元、有效订单数209及客单价254.77元，柱状图也已生成。完整23条端到端验收、模型耗时、Token成本和SQL生成准确率仍待实测；未验证项不视为通过。窄屏预览中可能发生图表轴标签裁切，当前保留插件原始图表配置。
-
-## 代码组织
-
-| 路径 | 内容 |
-|---|---|
-| `workflow/` | 可导入DSL |
-| `config/` | 构建时使用的插件版本标识 |
-| `database/` | 建表、模拟数据、只读账号模板、数据快照及清单 |
-| `prompts/` | SQL规划与结果汇总提示词 |
-| `nodes/` | 可单独编辑的Dify Python节点代码 |
-| `scripts/` | 数据生成、DSL构建、导入及本地验证 |
-| `evaluation/` | 验收问题、参考SQL、期望结果、真实验证报告 |
-| `docs/` | 指标口径和简历/面试说明 |
-
-修改节点代码或提示词后执行`python scripts/build_workflow.py`，再导入生成的新DSL；文件修改不会自动同步已导入的Dify应用。修改模拟数据时重新运行`generate_data.py`与`build_evaluation.py`；生成文件并不会自动更新已导入的数据库。
-
-所有构建输入均保存在本仓库中，不依赖原教学目录。上传GitHub的步骤见[GitHub上传步骤](docs/GitHub上传步骤.md)。
-
-## 当前边界
-
-只支持受约束的单层SELECT、显式JOIN和基础聚合，不支持CTE、子查询、UNION和窗口函数。检查器是词法/规则检查，不是完整SQL AST解析器，也不证明所有可接受SQL都语义正确。MySQL只读权限、行数上限、函数允许列表和执行时间提示共同降低风险；MAX_EXECUTION_TIME是服务器处理的SELECT提示，不能当作所有资源消耗的绝对保证。
-
-没有实现RAG、模型微调、缓存、自动SQL修复、预测模型、自研前端或高并发服务。需要在简历中展示的是你理解并实际完成的数据建模、工作流编排、指标定义、异常处理和验证工作。
+当前支持受约束的单层 SELECT、显式 JOIN 和基础聚合；SQL 检查采用词法与规则校验，数据库只读权限负责限制实际访问。演示数据不包含库存、广告或访问流量，也不提供未来销售预测。

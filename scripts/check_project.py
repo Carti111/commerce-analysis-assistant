@@ -111,7 +111,7 @@ class ProjectChecks(unittest.TestCase):
         self.assertEqual(manifest["seed_sql_sha256"], hashlib.sha256((ROOT / "database" / "02_seed.sql").read_bytes()).hexdigest())
 
     def test_dsl_references_and_embedded_code(self):
-        dsl = json.loads((ROOT / "workflow" / "商析助手-电商经营分析.yml").read_text(encoding="utf-8"))
+        dsl = json.loads((ROOT / "workflow" / "电商经营分析助手.yml").read_text(encoding="utf-8"))
         graph = dsl["workflow"]["graph"]
         nodes = {node["id"]: node for node in graph["nodes"]}
         self.assertEqual(len(nodes), len(graph["nodes"]))
